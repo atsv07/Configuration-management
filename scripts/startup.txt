@@ -1,0 +1,9 @@
+# Стартовый скрипт для демонстрации Этапа 2
+# Строки с # и пустые строки игнорируются
+
+ls
+cd $USERPROFILE
+ls -la /tmp
+unknown_command_here
+cd ${USERPROFILE}/Documents
+ls $NONEXISTENT_VAR

@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-"""
-Эмулятор командной оболочки UNIX-подобной ОС.
-Этап 1: REPL (диалог с пользователем, парсер переменных, команды-заглушки).
-Этап 2: Конфигурация (CLI-параметры + стартовый скрипт).
-"""
-
 import os
 import sys
 import getpass
@@ -12,8 +5,6 @@ import socket
 import re
 import argparse
 
-
-# ---------- Приглашение ----------
 
 def get_prompt():
     """Формирует приглашение: username@hostname:cwd$"""
@@ -34,8 +25,6 @@ def get_prompt():
     return f"{username}@{hostname}:{cwd}$ "
 
 
-# ---------- Парсер переменных окружения ----------
-
 def expand_variables(args):
     """Раскрывает $VAR и ${VAR} значениями из os.environ."""
     expanded_args = []
@@ -49,8 +38,6 @@ def expand_variables(args):
 
     return expanded_args
 
-
-# ---------- Команды ----------
 
 def cmd_ls(args, ctx):
     """Заглушка для команды ls."""
@@ -75,8 +62,6 @@ COMMANDS = {
 }
 
 
-# ---------- Ядро: выполнение одной строки ----------
-
 def execute_line(line, ctx):
     """Выполняет одну строку. Возвращает True, если команда распознана."""
     parts = line.split()
@@ -99,8 +84,6 @@ def execute_line(line, ctx):
         print(f"{command}: команда не найдена", file=sys.stderr)
         return False
 
-
-# ---------- Стартовый скрипт ----------
 
 def run_startup_script(path, ctx):
     """
@@ -125,14 +108,11 @@ def run_startup_script(path, ctx):
     for line_no, raw_line in enumerate(lines, start=1):
         line = raw_line.rstrip('\n').strip()
 
-        # Пропускаем пустые строки, shebang и комментарии
         if not line or line.startswith('#!') or line.startswith('#'):
             continue
 
-        # Имитация диалога: приглашение + введённая строка
         print(f"{prompt}{line}")
 
-        # Ошибка в одной строке не прерывает скрипт
         try:
             execute_line(line, ctx)
         except SystemExit:
@@ -146,7 +126,6 @@ def run_startup_script(path, ctx):
     print("=== Стартовый скрипт завершён ===\n")
 
 
-# ---------- REPL ----------
 
 def repl(ctx):
     print("Добро пожаловать в эмулятор оболочки UNIX (Этап 2).")
@@ -173,8 +152,6 @@ def repl(ctx):
             print(f"Непредвиденная ошибка: {e}", file=sys.stderr)
 
 
-# ---------- Аргументы командной строки ----------
-
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Эмулятор оболочки UNIX-подобной ОС. Этап 2: конфигурация."
@@ -194,11 +171,8 @@ def parse_args():
     return parser.parse_args()
 
 
-# ---------- Точка входа ----------
-
 def main():
-    # Эмуляция UNIX-переменной HOME в Windows.
-    # Нужно, чтобы в стартовых скриптах работал $HOME (как в Linux).
+
     if "HOME" not in os.environ and "USERPROFILE" in os.environ:
         os.environ["HOME"] = os.environ["USERPROFILE"]
 
@@ -207,13 +181,11 @@ def main():
     vfs_path = os.path.abspath(args.vfs_path)
     script_path = os.path.abspath(args.script_path) if args.script_path else None
 
-    # Отладочный вывод всех заданных параметров
     print("=== Параметры запуска эмулятора ===")
     print(f"VFS path:    {vfs_path}")
     print(f"Script path: {script_path}")
     print("===================================\n")
 
-    # VFS должна существовать как директория — создаём, если нет
     if not os.path.exists(vfs_path):
         os.makedirs(vfs_path, exist_ok=True)
         print(f"Создана директория VFS: {vfs_path}")
@@ -229,7 +201,6 @@ def main():
         "script_path": script_path,
     }
 
-    # Если задан стартовый скрипт — выполняем его
     if script_path:
         try:
             run_startup_script(script_path, ctx)
@@ -237,7 +208,6 @@ def main():
             print("Эмулятор завершён по команде из скрипта.")
             return
 
-    # После скрипта (или если его нет) — обычный REPL
     repl(ctx)
 
 
